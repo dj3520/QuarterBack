@@ -82,7 +82,14 @@ def iterate_users_as_members():
 
 async def get_user_as_member(user):
   for m in quarter.get_all_members():
+    await asyncio.sleep(0)
     if user.id == m.id: return m
+
+async def get_guild_by_id(gid):
+  out = []
+  for g in quarter.guilds:
+    await asyncio.sleep(0)
+    if str(g.id) == str(gid): return g
 
 async def send2owner(this):
   await write_message(appinf.owner, this)
@@ -197,14 +204,28 @@ class discord_side(discord.Client):
     logging.info(40*"=")
 
   async def on_member_join(self, member):
-    log.info("{} joined the {} server".format(member.name, member.guild.name))
+    users = settings.readSavedVar("users", default={})
+    log.info("{} joined the {} server".format(member.id, member.guild.name))
+    ret = None
+    if str(member.id) in users.keys(): ret = users[str(member.id)]
+    if "{} in {}".format(member.id, member.guild.id) in users.keys(): ret = users["{} in {}".format(member.id, member.guild.id)]
+    if ret == None: return
+    log.log(5, "Found an entry for this user: {}".format(ret))
+    if ret == False:
+      await charlotte(member)
+      return
+    await do_warn(member, ret)
+    delta = datetime.datetime.utcnow() - member.created_at
+    delta = delta.total_seconds()
+    if delta < 2678400: await do_warn(member, "Account is less than 31 days old.")
 
   async def on_guild_join(self, guild):
     log.info(guild.name+" joined!")
     await send2owner(guild.name+" joined!")
 
   async def on_message(self, message):
-    admin = message.author.id == appinf.owner.id and (quarter.user in message.mentions or utils.is_pm(message.channel))
+    admin = message.author.id == appinf.owner.id and (self.user in message.mentions or utils.is_pm(message.channel))
+    if utils.is_pm(message.channel) and not admin: return
     requested = message.content.startswith("qb ")
 
     if not admin and not requested: return
@@ -216,10 +237,15 @@ class discord_side(discord.Client):
       mentions = cleaned[1]
       cleaned = cleaned[0]
       check.add("sudo reboot", shutdown(self, message))
-      check.add("list admin commands", "sudo reboot")
+      check.add("dump roles", dump_roles(self, message))
+      check.add("list admin commands", "dump roles, sudo reboot")
     elif requested:
       cleaned = message.content.replace("qb ", "")
       check.add("ping", "Pong!")
+      if message.author.guild_permissions.manage_guild:
+        check.add("add", add_warn(message))
+        check.add("set", set_warn(message))
+        check.add(["list commands", "help"], "add <ID> <reason>, set <channel>")
 
     do = check.match(cleaned.lower())
     if isinstance(do, str):
@@ -230,6 +256,84 @@ class discord_side(discord.Client):
       return
 
 ## === ~~~ -- Commands -- ~~~ === ##
+
+async def charlotte(charl):
+  football = settings.readSavedVar("football", default={})
+  try:
+    if "football_roles" in football.keys():
+      tack_on = []
+      for i in football["football_roles"]:
+        for r in charl.guild.roles:
+          if i == str(r.id): tack_on.append(r)
+      await charl.edit(reason="Welcome back football!", roles=tack_on)
+    if "football_kicks" in football.keys():
+      football["football_kicks"] += 1
+      settings.setSavedVar("football", football)
+      await charl.edit(reason="Welcome back football!", nick="FootBall Lvl"+str(football["football_kicks"]))
+  except Exception as e:
+    log.warning("Something went wrong! What gives?")
+    log.exception(e)
+
+async def do_warn(member, reason):
+  guild = member.guild
+  channel = await get_guild_setting(guild.id, "warn-channel")
+  msg = member.mention+" - "+reason
+  if channel == None:
+    await write_message(guild.owner, "Warning channel isn't configured.\n"+msg)
+    return
+  channel = guild.get_channel(channel)
+  if channel == None:
+    await write_message(guild.owner, "Warning channel wasn't found.\n"+msg)
+    return
+  await write_message(channel, msg)
+
+async def add_warn(message):
+  guild = message.guild
+  channel = await get_guild_setting(guild.id, "warn-channel")
+  if channel == None:
+    await write_message(message.channel, "Warning channel isn't configured.")
+  else:
+    channel = guild.get_channel(channel)
+    if channel == None:
+      await write_message(message.channel, "Warning channel wasn't found.\n"+msg)
+
+  cleaned = message.clean_content
+  cleaned = cleaned.replace("qb add ", "")
+  uid = cleaned.split(" ")[0]
+  cleaned = cleaned.replace(uid, "")
+  cleaned = cleaned.strip()
+
+  log.info("New warn: {} Reason: {}".format(uid, cleaned))
+  users = settings.readSavedVar("users", default={})
+  users[uid] = cleaned
+  settings.setSavedVar("users", users)
+  await write_message(message.channel, ":thumbsup:")
+
+async def set_warn(message):
+  guild = message.guild
+  channel = message.channel_mentions
+  if len(channel) > 1:
+    await write_message(message.channel, "More than one channel supplied. This is not supported.")
+    return
+
+  channel = channel[0]
+
+  await set_guild_setting(guild.id, "warn-channel", int(channel.id))
+  await write_message(channel, ":thumbsup:")
+
+async def dump_roles(dclient, message):
+  content = message.content.lower().replace("dump roles ", "")
+  content = content.split(" ")
+  server_id = content[0]
+  server = None
+  try: server = dclient.get_guild(int(server_id))
+  except: pass
+  if server == None:
+    await write_message(message.channel, "Cannot find server ID: "+server_id)
+    return
+
+  await write_message(message.channel, "```"+utils.better_str([str(r.id)+" - "+r.name for r in server.role_hierarchy]).replace(", ", "\n")+"```")
+
 
 quarter = discord_side()
 keep_going = True
