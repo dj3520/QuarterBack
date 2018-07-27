@@ -1,7 +1,7 @@
 import logging, json, os, copy
 
 log = logging.getLogger(__name__)
-disksaver = True
+disksaver = False
 
 class SaveSys:
   def __init__(self, file):
