@@ -1,0 +1,10 @@
+auth.py
+libs/aiml_handler.py
+*.pyc
+libs/aiml_DJ/*
+libs/ee.py
+libs/status_stack.py
+libs/twitch*
+libs/jousc.py
+libs/weeb.py
+*.log
