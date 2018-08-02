@@ -1,5 +1,5 @@
 import discord
-import re, math, collections
+import re, math
 
 import logging
 
@@ -83,12 +83,12 @@ def gonnacallyou(author):
 
 def better_str(inthing):
   out = ''
-  if isinstance(inthing, list) or isinstance(inthing, collections.abc.KeysView) or isinstance(inthing, collections.abc.ValuesView):
-    for g in inthing:
-      out+=str(g)+", "
-  elif isinstance(inthing, dict):
+  if isinstance(inthing, dict):
     for g in inthing.keys():
       out+="["+str(g)+" : "+better_str(inthing[g])+"],\n"
+  elif isinstance(inthing, list):
+    for g in inthing:
+      out+=str(g)+", "
   elif isinstance(inthing, float):
     out = "{:,.2f}".format(inthing)
     if len(out) < 1: return out

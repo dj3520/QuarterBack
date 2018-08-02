@@ -161,7 +161,7 @@ async def write_message(where, content, tts=False):
     await failed_message(where, want_perm)
     return None
 
-async def shutdown(dclient, message, match):
+async def shutdown(dclient, message):
   await write_message(message.channel, "Goodbye.")
   await dclient.logout()
 
@@ -224,42 +224,35 @@ class discord_side(discord.Client):
     await send2owner(guild.name+" joined!")
 
   async def on_message(self, message):
-    owner = message.author.id == appinf.owner.id and (self.user in message.mentions or utils.is_pm(message.channel))
+    admin = message.author.id == appinf.owner.id and (self.user in message.mentions or utils.is_pm(message.channel))
+    if utils.is_pm(message.channel) and not admin: return
     requested = message.content.startswith("qb ")
 
-    # Ignore messages from self
+    if not admin and not requested: return
     if message.author == self.user: return
 
-    # Ignore non requested messages
-    if not owner and not requested: return
-
-    # Ignore DMs from non owners
-    if utils.is_pm(message.channel) and not owner: return
-
     check = ACIF2.command_matcher()
-    if owner:
+    if admin:
       cleaned = utils.remove_activation_text(message, sendback=True)
       mentions = cleaned[1]
       cleaned = cleaned[0]
-      check.add("sudo reboot", shutdown)
-    elif owner or requested:
+      check.add("sudo reboot", shutdown(self, message))
+      check.add("dump roles", dump_roles(self, message))
+      check.add("list admin commands", "dump roles, sudo reboot")
+    elif requested:
       cleaned = message.content.replace("qb ", "")
       check.add("ping", "Pong!")
-      if message.author.guild_permissions.manage_roles:
-        check.add("dump roles", dump_roles)
-      if message.author.guild_permissions.kick_members:
-        check.add("add", add_warn)
-        check.add("set", set_warn)
+      if message.author.guild_permissions.manage_guild:
+        check.add("add", add_warn(message))
+        check.add("set", set_warn(message))
+        check.add(["list commands", "help"], "add <ID> <reason>, set <channel>")
 
-
-    check.add(["list commands", "help"], utils.better_str(check.get_list()))
-
-    do, match = check.match(cleaned.lower(), return_match=True)
+    do = check.match(cleaned.lower())
     if isinstance(do, str):
       await write_message(message.channel, do)
       return
     elif not do == None:
-      await do(self, message, match)
+      await do
       return
 
 ## === ~~~ -- Commands -- ~~~ === ##
@@ -294,7 +287,7 @@ async def do_warn(member, reason):
     return
   await write_message(channel, msg)
 
-async def add_warn(dclient, message, match):
+async def add_warn(message):
   guild = message.guild
   channel = await get_guild_setting(guild.id, "warn-channel")
   if channel == None:
@@ -305,7 +298,7 @@ async def add_warn(dclient, message, match):
       await write_message(message.channel, "Warning channel wasn't found.\n"+msg)
 
   cleaned = message.clean_content
-  cleaned = cleaned.replace(match+" ", "")
+  cleaned = cleaned.replace("qb add ", "")
   uid = cleaned.split(" ")[0]
   cleaned = cleaned.replace(uid, "")
   cleaned = cleaned.strip()
@@ -316,7 +309,7 @@ async def add_warn(dclient, message, match):
   settings.setSavedVar("users", users)
   await write_message(message.channel, ":thumbsup:")
 
-async def set_warn(dclient, message, match):
+async def set_warn(message):
   guild = message.guild
   channel = message.channel_mentions
   if len(channel) > 1:
@@ -328,8 +321,18 @@ async def set_warn(dclient, message, match):
   await set_guild_setting(guild.id, "warn-channel", int(channel.id))
   await write_message(channel, ":thumbsup:")
 
-async def dump_roles(dclient, message, match):
-  await write_message(message.channel, "```"+utils.better_str([str(r.id)+" - "+r.name for r in message.guild.role_hierarchy]).replace(", ", "\n")+"```")
+async def dump_roles(dclient, message):
+  content = message.content.lower().replace("dump roles ", "")
+  content = content.split(" ")
+  server_id = content[0]
+  server = None
+  try: server = dclient.get_guild(int(server_id))
+  except: pass
+  if server == None:
+    await write_message(message.channel, "Cannot find server ID: "+server_id)
+    return
+
+  await write_message(message.channel, "```"+utils.better_str([str(r.id)+" - "+r.name for r in server.role_hierarchy]).replace(", ", "\n")+"```")
 
 
 quarter = discord_side()
