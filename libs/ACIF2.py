@@ -18,6 +18,9 @@ class command_matcher:
       self.lookup[match] = to_return
       log.log(5, "Added "+str(match))
 
+  def get_list(self):
+    return self.lookup.keys()
+
   def match(self, match, return_match=False):
     log.debug("Try to match "+str(match))
     for k in self.lookup.keys():
