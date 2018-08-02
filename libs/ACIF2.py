@@ -18,14 +18,10 @@ class command_matcher:
       self.lookup[match] = to_return
       log.log(5, "Added "+str(match))
 
-<<<<<<< HEAD
   def get_list(self):
     return self.lookup.keys()
 
   def match(self, match, return_match=False):
-=======
-  def match(self, match):
->>>>>>> parent of 8266c11... match has optional return_math boolean
     log.debug("Try to match "+str(match))
     for k in self.lookup.keys():
       if match.startswith(k):
