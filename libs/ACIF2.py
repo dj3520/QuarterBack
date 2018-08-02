@@ -25,5 +25,6 @@ class command_matcher:
     log.debug("Try to match "+str(match))
     for k in self.lookup.keys():
       if match.startswith(k):
+        if return_match: return self.lookup[k], k
         return self.lookup[k]
     return None
