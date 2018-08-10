@@ -104,7 +104,7 @@ async def failed_reaction(message):
   elif channel_settings["AskedForReactPerms"]:
     logging.debug("Already asked up for "+str(message.channel.id))
     return
-  await write_message(message.guild.owner, "I do not have `Add Reactions` permission in `"+message.guild.name+"/"+message.channel.name+"`")
+  await send2owner("I do not have `Add Reactions` permission in `"+message.guild.name+"/"+message.channel.name+"`")
 
 async def failed_message(where, want_perm):
   logging.info('Failed to send message.')
@@ -117,7 +117,7 @@ async def failed_message(where, want_perm):
   elif channel_settings[key]:
     logging.debug("Already asked for "+key+" in "+str(where.id))
     return
-  await write_message(where.guild.owner, "I do not have `"+want_perm+"` permission in `"+where.guild.name+"/"+where.name+"`")
+  await send2owner(where.guild.owner, "I do not have `"+want_perm+"` permission in `"+where.guild.name+"/"+where.name+"`")
 
 async def write_message(where, content, tts=False):
   isEmbed = isinstance(content, discord.embeds.Embed)
@@ -152,8 +152,6 @@ async def write_message(where, content, tts=False):
       return None
 
   try:
-    # Thank the guys at Discord API/python_discord-py
-    # log.log(5, dir(where))
     sent = await where.send(None, embed=content)
     return sent
   except discord.Forbidden:
@@ -328,7 +326,7 @@ async def set_warn(dclient, message, match):
   await write_message(channel, ":thumbsup:")
 
 async def dump_roles(dclient, message, match):
-if utils.is_pm(message.channel):
+  if utils.is_pm(message.channel):
     await write_message(message.channel, "This is a private message. Do the command in a server.")
     return
 
