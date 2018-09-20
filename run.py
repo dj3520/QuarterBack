@@ -118,7 +118,7 @@ async def failed_message(where, want_perm):
   elif channel_settings[key]:
     logging.debug("Already asked for "+key+" in "+str(where.id))
     return
-  await send2owner(where.guild.owner, "I do not have `"+want_perm+"` permission in `"+where.guild.name+"/"+where.name+"`")
+  await send2owner("I do not have `"+want_perm+"` permission in `"+where.guild.name+"/"+where.name+"`")
 
 async def write_message(where, content, tts=False):
   isEmbed = isinstance(content, discord.embeds.Embed)
