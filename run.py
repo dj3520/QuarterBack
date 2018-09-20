@@ -307,6 +307,7 @@ class discord_side(discord.Client):
       if message.author.guild_permissions.kick_members:
         check.add("add", add_warn)
         check.add("set", set_warn)
+        check.add("scan", rescan)
 
     check.add(["list commands", "help"], utils.better_str(check.get_list()))
 
@@ -334,6 +335,25 @@ async def charlotte(charl):
   except Exception as e:
     log.warning("Something went wrong! What gives?")
     log.exception(e)
+
+async def rescan(dclient, message, match):
+  if utils.is_pm(message.channel):
+    await write_message(message.channel, "This is a private message. Do the command in a server.")
+    return
+
+  users = settings.readSavedVar("users", default={})
+  compiled = ""
+  for m in message.guild.members:
+    ret = None
+    if str(m.id) in users.keys(): ret = users[str(m.id)]
+    if "{} in {}".format(m.id, message.guild.id) in users.keys(): ret = users["{} in {}".format(m.id, message.guild.id)]
+    if ret == None: continue
+    if ret == False: ret = "Is a football."
+    compiled = "{}{} - {}\n".format(compiled, m.mention, ret)
+  if compiled == "":
+    await write_message(message.channel, "No users found with warnings in this server. :thumbsup:")
+    return
+  await write_message(message.channel, compiled)
 
 async def do_warn(member, reason):
   guild = member.guild
