@@ -8,4 +8,4 @@ libs/twitch*
 libs/jousc.py
 libs/weeb.py
 *.log
-qb-vars.json
+*.json
