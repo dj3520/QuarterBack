@@ -127,7 +127,7 @@ async def write_message(where, content, tts=False):
     out = {}
     for i in where:
       await asyncio.sleep(0)
-      out[i] = await write_message(i, content, wait=wait, tts=tts)
+      out[i] = await write_message(i, content, tts=tts)
     return out
 
   if where == None:
@@ -139,7 +139,7 @@ async def write_message(where, content, tts=False):
     blockquote = '```' in content
 
     if len(content) > 2000:
-      await write_message(where, "My reply was too long. (More than 2000 characters)", wait=False)
+      await write_message(where, "My reply was too long. (More than 2000 characters)")
 
     try:
       sent = await where.send(content, tts=tts)
