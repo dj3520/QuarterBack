@@ -136,7 +136,6 @@ async def write_message(where, content, tts=False):
 
   if not isEmbed:
     if content == None: return False
-    blockquote = '```' in content
 
     if len(content) > 2000:
       await write_message(where, "My reply was too long. (More than 2000 characters)")
