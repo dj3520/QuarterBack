@@ -58,6 +58,15 @@ class SaveSys:
         try: os.remove(self.settingsFile)
         except: pass
     else:
-      with open(self.settingsFile, "w", encoding="utf8") as f:
-        json.dump(self.settingsDic, f, sort_keys=True, indent=2)
+      moment = self.settingsFile+".tmp"
+      try:
+        with open(moment, "w", encoding="utf8") as f:
+          json.dump(self.settingsDic, f, sort_keys=True, indent=2)
+      except Exception as e:
+        if os.path.isfile(moment):
+          os.remove(moment)
+          log.critical("Failed to save "+self.settingsFile)
+          log.exception(e)
+          return
+      os.rename(moment, self.settingsFile)
     return
