@@ -199,6 +199,46 @@ class discord_side(discord.Client):
     logging.info("Started in "+str(startedtime)+" seconds.")
     logging.info(40*"=")
 
+  async def on_member_leave(self, member):
+    users = settings.readSavedVar("users", default={})
+    if not str(member.id) in users.keys(): return
+    if not users[str(member.id)] == False: return
+
+    log.info("Football left stadium.")
+
+    football = settings.readSavedVar("football", default={})
+
+    # Save roles
+    rl = []
+
+    for m in member.roles:
+      if m.is_default(): continue
+      rl.append(str(m.id))
+
+    football['football_roles'] = rl
+
+    # Kick detection via audit log (find kicks for this user in the last 5 seconds)
+
+    kick = False
+
+    compare = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+    log = await member.server.audit_logs(before=compare)
+    for e in log:
+      if e.action == discord.AuditLogAction.kick or e.action == discord.AuditLogAction.ban:
+        if target.id == member.id:
+          kick = True
+          break
+
+    log.info("Kick detection reads {}".format(kick))
+
+    # Increase counter on kick
+    if kick:
+      if "football_kicks" in football.keys():
+        football["football_kicks"] += 1
+
+    # Save
+    settings.setSavedVar("football", football)
+
   async def on_member_join(self, member):
     users = settings.readSavedVar("users", default={})
     log.info("{} joined the {} server".format(member.id, member.guild.name))
@@ -270,9 +310,7 @@ async def charlotte(charl):
           if i == str(r.id): tack_on.append(r)
       await charl.edit(reason="Welcome back football!", roles=tack_on)
     if "football_kicks" in football.keys():
-      football["football_kicks"] += 1
-      settings.setSavedVar("football", football)
-      await charl.edit(reason="Welcome back football!", nick="FootBall Lvl"+str(football["football_kicks"]))
+      await charl.edit(reason="Welcome back football!", nick="FootBall Lvl "+str(football["football_kicks"]))
   except Exception as e:
     log.warning("Something went wrong! What gives?")
     log.exception(e)
