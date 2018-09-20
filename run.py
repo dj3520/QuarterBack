@@ -24,7 +24,7 @@ con = logging.StreamHandler(sys.stdout)
 con.setFormatter(format)
 log.addHandler(con)
 
-log.setLevel(10)
+log.setLevel(5)
 
 log.info("Starting QuarterBack..")
 log.info("Python: "+sys.version)
