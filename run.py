@@ -193,8 +193,6 @@ class discord_side(discord.Client):
 
     startingUpDiscord = False
 
-    global appinf
-    appinf = await quarter.application_info()
     global ready_time
     ready_time = time.time()
     startedtime = math.trunc((ready_time - starttime) * 100) / 100
@@ -222,6 +220,7 @@ class discord_side(discord.Client):
     await send2owner(guild.name+" joined!")
 
   async def on_message(self, message):
+    appinf = await quarter.application_info()
     owner = message.author.id == appinf.owner.id and (self.user in message.mentions or utils.is_pm(message.channel))
     requested = message.content.startswith("qb ")
 
