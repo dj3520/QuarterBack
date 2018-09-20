@@ -92,6 +92,7 @@ async def get_guild_by_id(gid):
     if str(g.id) == str(gid): return g
 
 async def send2owner(this):
+  appinf = await quarter.application_info()
   await write_message(appinf.owner, this)
 
 async def failed_reaction(message):
