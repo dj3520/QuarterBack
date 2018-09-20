@@ -163,6 +163,25 @@ async def shutdown(dclient, message, match):
   await write_message(message.channel, "Goodbye.")
   await dclient.logout()
 
+async def lvl_football(dclient, message, match):
+  cleaned = message.clean_content.lower()
+  log.debug(cleaned)
+  cleaned = cleaned.replace("qb "+match+" ", "")
+  lvl = cleaned.split(" ")[0]
+  log.debug(lvl)
+  try: lvl = int(lvl)
+  except: lvl = None
+  football = settings.readSavedVar("football", default={})
+  saved = 0
+  if "football_kicks" in football.keys():
+    saved = football["football_kicks"]
+  if lvl == None:
+    await write_message(message.channel, "Saved FootBall level is {}".format(saved))
+    return
+  football["football_kicks"] = lvl
+  settings.setSavedVar("football", football)
+  await write_message(message.channel, "Saved FootBall level is now {}".format(lvl))
+
 ### === ~~~ -- DISCORD CLASS -- ~~~ === ###
 
 class discord_side(discord.Client):
@@ -279,6 +298,7 @@ class discord_side(discord.Client):
       mentions = cleaned[1]
       cleaned = cleaned[0]
       check.add("sudo reboot", shutdown)
+      check.add("lvl football", lvl_football)
     elif requested:
       cleaned = message.content.replace("qb ", "")
       check.add("ping", "Pong!")
