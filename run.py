@@ -259,7 +259,16 @@ class discord_side(discord.Client):
     settings.setSavedVar("football", football)
 
   async def on_member_join(self, member):
+
     users = settings.readSavedVar("users", default={})
+
+    if "discord.gg/" in member.name:
+      await member.kick(reason="Username includes discord invite link.")
+      users[uid] = cleaned
+      settings.setSavedVar("users", users)
+      await do_warn(member, "Automatically kicked due to discord invite link in username.")
+      return
+
     log.info("{} joined the {} server".format(member.id, member.guild.name))
     ret = None
     if str(member.id) in users.keys(): ret = users[str(member.id)]
