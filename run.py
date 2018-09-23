@@ -264,7 +264,7 @@ class discord_side(discord.Client):
 
     if "discord.gg/" in member.name:
       await member.kick(reason="Username includes discord invite link.")
-      users[uid] = "[Automatic] Username included discord invite link."
+      users[str(member.id)] = "[Automatic] Username included discord invite link."
       settings.setSavedVar("users", users)
       await do_warn(member, "Automatically kicked due to discord invite link in username.")
       return
