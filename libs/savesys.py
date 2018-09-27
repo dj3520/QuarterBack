@@ -68,5 +68,6 @@ class SaveSys:
           log.critical("Failed to save "+self.settingsFile)
           log.exception(e)
           return
+      if os.path.isfile(self.settingsFile): os.remove(self.settingsFile)
       os.rename(moment, self.settingsFile)
     return
