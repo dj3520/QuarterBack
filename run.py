@@ -266,7 +266,7 @@ class discord_side(discord.Client):
       await member.kick(reason="Username includes discord invite link.")
       users[str(member.id)] = "[Automatic] Username included discord invite link."
       settings.setSavedVar("users", users)
-      await do_warn(member, "Automatically kicked due to discord invite link in username.")
+      await do_warn(member, "Automatically kicked due to discord invite link in username. Please remove any automated welcome messages.")
       return
 
     log.info("{} joined the {} server".format(member.id, member.guild.name))
