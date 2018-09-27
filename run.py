@@ -295,6 +295,10 @@ class discord_side(discord.Client):
     # Ignore own messages
     if message.author == self.user: return
 
+    if "sweetiestarr" in message.content.lower():
+      await message.pin()
+      return
+
     # Ignore normal messages
     if not owner and not requested: return
 
