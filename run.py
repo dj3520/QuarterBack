@@ -166,7 +166,7 @@ async def shutdown(dclient, message, match):
 async def lvl_football(dclient, message, match):
   cleaned = message.clean_content.lower()
   log.debug(cleaned)
-  cleaned = cleaned.replace("qb "+match+" ", "")
+  cleaned = cleaned.replace("@quarterback "+match+" ", "")
   lvl = cleaned.split(" ")[0]
   log.debug(lvl)
   try: lvl = int(lvl)
