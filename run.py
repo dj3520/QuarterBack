@@ -299,6 +299,18 @@ class discord_side(discord.Client):
       await message.pin()
       return
 
+    users = settings.readSavedVar("users", default={})
+    if str(message.author.id) in users.keys():
+      if users[str(message.author.id)] == "HECK":
+        if "heck" in message.content.lower():
+          try:
+            await message.add_reaction(chr(127469))
+            await message.add_reaction(chr(127466))
+            await message.add_reaction(chr(127464))
+            await message.add_reaction(chr(127472))
+          except:
+            pass
+
     # Ignore normal messages
     if not owner and not requested: return
 
@@ -419,7 +431,6 @@ async def dump_roles(dclient, message, match):
   if utils.is_pm(message.channel):
     await write_message(message.channel, "This is a private message. Do the command in a server.")
     return
-
   await write_message(message.channel, "```"+utils.better_str([str(r.id)+" - "+r.name for r in message.guild.role_hierarchy]).replace(", ", "\n")+"```")
 
 
