@@ -1,5 +1,6 @@
 import logging
 
+# Because a cat is fine too
 log = logging.getLogger(__name__)
 
 class command_matcher:
