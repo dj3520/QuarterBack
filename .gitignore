@@ -9,3 +9,4 @@ libs/jousc.py
 libs/weeb.py
 *.log
 *.json
+libs/phue.py
