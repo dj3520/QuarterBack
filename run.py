@@ -303,7 +303,7 @@ class discord_side(discord.Client):
     if str(message.author.id) in users.keys():
       if users[str(message.author.id)] == "HECK":
 
-        heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "ｈｅｃｋ", "ʜᴇᴄᴋ"]
+        heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "ｈｅｃｋ", "ʜᴇᴄᴋ", "h3ck", "hėck"]
 
         has_heck = False
         for i in heck_check:
