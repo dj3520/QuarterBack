@@ -409,11 +409,18 @@ async def add_warn(dclient, message, match):
   cleaned = cleaned.replace(uid, "")
   cleaned = cleaned.strip()
 
-  log.info("New warn: {} Reason: {}".format(uid, cleaned))
+  clear = cleaned == "clear"
   users = settings.readSavedVar("users", default={})
-  users[uid] = cleaned
+
+  if clear:
+    log.info("Clearing warn: {} Old reason: {}".format(uid, users[uid]))
+    del users[uid]
+    await write_message(message.channel, ":ok_hand:")
+  else:
+    log.info("New warn: {} Reason: {}".format(uid, cleaned))
+    users[uid] = cleaned
+    await write_message(message.channel, ":thumbsup:")
   settings.setSavedVar("users", users)
-  await write_message(message.channel, ":thumbsup:")
 
 async def set_warn(dclient, message, match):
   guild = message.guild
