@@ -314,7 +314,7 @@ class discord_side(discord.Client):
         conv2 = unidecode.unidecode(conv)
 
         # Feel free to append (insure
-        heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "h3ck"]
+        heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "h3ck", "həck"]
 
         has_heck = False
         for i in heck_check:
@@ -359,10 +359,8 @@ class discord_side(discord.Client):
     do, match = check.match(cleaned.lower(), return_match=True)
     if isinstance(do, str):
       await write_message(message.channel, do)
-      return
     elif not do == None:
       await do(self, message, match)
-      return
 
 ## === ~~~ -- Commands -- ~~~ === ##
 
