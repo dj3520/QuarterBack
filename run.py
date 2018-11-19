@@ -302,7 +302,16 @@ class discord_side(discord.Client):
     users = settings.readSavedVar("users", default={})
     if str(message.author.id) in users.keys():
       if users[str(message.author.id)] == "HECK":
-        if "heck" in message.content.lower():
+
+        heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "ｈｅｃｋ", "ʜᴇᴄᴋ"]
+
+        has_heck = False
+        for i in heck_check:
+          if i in message.content.lower():
+            has_heck = True
+            break
+
+        if has_heck:
           try:
             await message.add_reaction(chr(127469))
             await message.add_reaction(chr(127466))
