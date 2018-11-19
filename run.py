@@ -37,6 +37,8 @@ for l in ['discord.client', 'discord.gateway', 'discord.http', 'libs.ACIF2', 'we
   o.setLevel(logging.INFO)
   o.debug('Set '+l+' level to INFO')
 
+import unidecode
+
 custom_loop = asyncio.get_event_loop()
 
 settings = savesys.SaveSys("qb-vars.json")
@@ -303,11 +305,20 @@ class discord_side(discord.Client):
     if str(message.author.id) in users.keys():
       if users[str(message.author.id)] == "HECK":
 
-        heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "ｈｅｃｋ", "ʜᴇᴄᴋ", "h3ck", "hėck"]
+        # _should_ convert most accent marks
+        conv = message.content.lower()
+        conv = conv.replace(":regional_indicator_", "")
+        # Need to take off the other colon too
+        conv = conv.replace(":", "")
+
+        conv2 = unidecode.unidecode(conv)
+
+        # Feel free to append (insure
+        heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "h3ck"]
 
         has_heck = False
         for i in heck_check:
-          if i in message.content.lower():
+          if i.lower() in conv or i.lower() in conv2:
             has_heck = True
             break
 
