@@ -297,9 +297,25 @@ class discord_side(discord.Client):
     # Ignore own messages
     if message.author == self.user: return
 
-    if "sweetiestarr" in message.content.lower():
-      await message.pin()
-      return
+    # Ignore bots
+    if message.author.bot: return
+
+    if isinstance(message.content.lower(), str):
+      check1 = ACIF2.command_matcher()
+      check1.add("sweetiestarr", "Unwritten rule was broken.")
+      #11. Absolutely no Uganda Knuckles talk.
+      check1.add(["ebola", "da wey", "uganda", "ugandan knuckles", "da wei", "de wei", "de way"], "Possible Rule 11.")
+      # 9. No talk of religion
+      # nothing yet
+      # 8. No talk of politics.
+      check1.add(["bipartisan", "caucus", "filibuster", "gerrymander", "politics", "republican", "democrat"], "Possible Rule 8.")
+
+      do = check1.match(message.content.lower())
+      if isinstance(do, str):
+        message_link = "https://discordapp.com/channels/{}/{}/{}".format(message.guild.id, message.channel.id, message.id)
+        await do_warn(message.author, "{}\nChannel: <#{}>\n{}".format(do, message.channel.id, message_link))
+      elif not do == None:
+        await do(self, message, match)
 
     users = settings.readSavedVar("users", default={})
     if str(message.author.id) in users.keys():
