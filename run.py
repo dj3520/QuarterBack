@@ -290,6 +290,17 @@ class discord_side(discord.Client):
     log.info(guild.name+" joined!")
     await send2owner(guild.name+" joined!")
 
+  async def on_member_update(self, old, new):
+    if old.bot: return
+
+    users = settings.readSavedVar("users", default={})
+    if str(new.id) in users.keys():
+      if users[str(new.id)].startswith("NAME_LOCK"):
+        nick = users[str(new.id)].replace("NAME_LOCK ", "")
+        if not new.nick == nick:
+          await new.edit(nick=nick, reason="Name lock enabled for this user.")
+
+
   async def on_message(self, message):
     appinf = await quarter.application_info()
     owner = message.author.id == appinf.owner.id and (self.user in message.mentions or utils.is_pm(message.channel))
