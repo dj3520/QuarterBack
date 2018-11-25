@@ -298,8 +298,8 @@ class discord_side(discord.Client):
       if users[str(new.id)].startswith("NAME_LOCK"):
         nick = users[str(new.id)].replace("NAME_LOCK ", "")
         if not new.nick == nick:
-          await new.edit(nick=nick, reason="Name lock enabled for this user.")
-
+          try: await new.edit(nick=nick, reason="Name lock enabled for this user.")
+          except: pass
 
   async def on_message(self, message):
     appinf = await quarter.application_info()
