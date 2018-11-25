@@ -328,9 +328,12 @@ class discord_side(discord.Client):
         # Need to take off the other colon too
         conv = conv.replace(":", "")
 
+        for i in range(0, 3):
+          conv = conv.replace("heck"[i]*2, "heck"[i])
+
         conv2 = unidecode.unidecode(conv)
 
-        # Feel free to append (insure
+        # Feel free to append
         heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "h3ck", "həck"]
 
         has_heck = False
