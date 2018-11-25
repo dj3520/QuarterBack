@@ -28,4 +28,5 @@ class command_matcher:
       if match.startswith(k):
         if return_match: return self.lookup[k], k
         return self.lookup[k]
+    if return_match: return None, None
     return None
