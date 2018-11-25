@@ -461,6 +461,11 @@ async def add_warn(dclient, message, match):
   clear = cleaned == "clear"
   users = settings.readSavedVar("users", default={})
 
+  if cleaned.startswith("NAME_LOCK"):
+    if len(cleaned.replace("NAME_LOCK ", "")) > 33:
+      await write_message(message.channel, ":x: Locked name is above 32 characters.")
+      return
+
   if clear:
     log.info("Clearing warn: {} Old reason: {}".format(uid, users[uid]))
     del users[uid]
