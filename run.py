@@ -283,6 +283,7 @@ class discord_side(discord.Client):
     await do_warn(member, ret)
     delta = datetime.datetime.utcnow() - member.created_at
     delta = delta.total_seconds()
+    log.debug("Account age in seconds: {}".format(delta))
     if delta < 2678400: await do_warn(member, "Account is less than 31 days old.")
 
   async def on_guild_join(self, guild):
