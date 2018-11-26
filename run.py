@@ -297,6 +297,7 @@ class discord_side(discord.Client):
     if str(new.id) in users.keys():
       if users[str(new.id)].startswith("NAME_LOCK"):
         nick = users[str(new.id)].replace("NAME_LOCK ", "")
+        if new.nick == old.nick: return
         if not new.nick == nick:
           try: await new.edit(nick=nick, reason="Name lock enabled for this user.")
           except: pass
