@@ -239,12 +239,14 @@ class discord_side(discord.Client):
     football['football_roles'] = rl
 
     # Kick detection via audit log (find kicks for this user in the last 5 seconds)
+    # Kick detection via audit log (find kicks for this user in the last 10 seconds)
 
     kick = False
 
-    compare = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
-    log = await member.server.audit_logs(before=compare)
-    for e in log:
+    compare = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
+    alog = await member.server.audit_logs(before=compare)
+    log.debug("{} Audit log entries in last 10 seconds.".format(len(alog)))
+    for e in alog:
       if e.action == discord.AuditLogAction.kick or e.action == discord.AuditLogAction.ban:
         if target.id == member.id:
           kick = True
