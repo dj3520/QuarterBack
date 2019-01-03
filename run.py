@@ -375,7 +375,6 @@ class discord_side(discord.Client):
       mentions = cleaned[1]
       cleaned = cleaned[0]
       check.add("sudo reboot", shutdown)
-      check.add("lvl football", lvl_football)
     elif requested:
       cleaned = message.content.replace("qb ", "")
       check.add("ping", "Pong!")
@@ -385,6 +384,7 @@ class discord_side(discord.Client):
         check.add("add", add_warn)
         check.add("set", set_warn)
         check.add("scan", rescan)
+        check.add("lvl football", lvl_football)
 
     check.add(["list commands", "help"], utils.better_str(check.get_list()))
 
