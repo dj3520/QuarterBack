@@ -369,30 +369,34 @@ class discord_side(discord.Client):
     # Ignore DMs from non-owner
     if utils.is_pm(message.channel) and not owner: return
 
-    check = ACIF2.command_matcher()
-    if owner:
-      cleaned = utils.remove_activation_text(message, sendback=True)
-      mentions = cleaned[1]
-      cleaned = cleaned[0]
-      check.add("sudo reboot", shutdown)
-    elif requested:
-      cleaned = message.content.replace("qb ", "")
-      check.add("ping", "Pong!")
-      if message.author.guild_permissions.manage_roles:
-        check.add("dump roles", dump_roles)
-      if message.author.guild_permissions.kick_members:
-        check.add("add", add_warn)
-        check.add("set", set_warn)
-        check.add("scan", rescan)
-        check.add("lvl football", lvl_football)
+    splitup = cleaned.lower().splitby("\n")
+    for i in range(len(splitup)):
+      checkme = splitup[i]
 
-    check.add(["list commands", "help"], utils.better_str(check.get_list()))
+      check = ACIF2.command_matcher()
+      if owner:
+        cleaned = utils.remove_activation_text(message, sendback=True)
+        mentions = cleaned[1]
+        cleaned = cleaned[0]
+        check.add("sudo reboot", shutdown)
+      elif requested:
+        cleaned = message.content.replace("qb ", "")
+        check.add("ping", "Pong!")
+        if message.author.guild_permissions.manage_roles:
+          check.add("dump roles", dump_roles)
+        if message.author.guild_permissions.kick_members:
+          check.add("add", add_warn)
+          check.add("set", set_warn)
+          check.add("scan", rescan)
+          check.add("lvl football", lvl_football)
 
-    do, match = check.match(cleaned.lower(), return_match=True)
-    if isinstance(do, str):
-      await write_message(message.channel, do)
-    elif not do == None:
-      await do(self, message, match)
+      check.add(["list commands", "help"], utils.better_str(check.get_list()))
+
+      do, match = check.match(checkme, return_match=True)
+      if isinstance(do, str):
+        await write_message(message.channel, do)
+      elif not do == None:
+        await do(self, message, match)
 
 ## === ~~~ -- Commands -- ~~~ === ##
 
