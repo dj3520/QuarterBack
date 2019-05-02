@@ -11,3 +11,5 @@ libs/weeb.py
 *.json
 libs/phue.py
 *.bak
+*.1
+*.2
