@@ -1,12 +1,12 @@
 import logging, json, os, copy
 
 log = logging.getLogger(__name__)
-disksaver = False
 
 class SaveSys:
-  def __init__(self, file):
+  def __init__(self, file, ds = False):
     self.settingsFile = file
     self.settingsDic = {}
+    self.disksaver = ds
     if os.path.isfile(self.settingsFile):
       with open(self.settingsFile, encoding="utf8") as f:
         self.settingsDic = json.load(f)
@@ -16,7 +16,7 @@ class SaveSys:
     return self
 
   def __exit__(self, exc_type, exc_value, traceback):
-    pass
+    del self
 
   def readSavedVar(self, var, default=None):
     log.log(4, "["+self.settingsFile+"] Reading value: "+var)
@@ -27,7 +27,7 @@ class SaveSys:
 
   def setSavedVar(self, var, val):
 
-    if disksaver:
+    if self.disksaver:
       if var in self.settingsDic.keys():
         if self.settingsDic[var] == val:
           log.log(4, "[{}] Not updating '{}' because it's the same as before.".format(self.settingsFile, var))
@@ -56,7 +56,9 @@ class SaveSys:
       if os.path.isfile(self.settingsFile):
         log.debug("["+self.settingsFile+"] Save file will not contain any information, so deleting it.")
         try: os.remove(self.settingsFile)
-        except: pass
+        except:
+          log.critical("Failed to delete "+self.settingsFile)
+          log.exception(e)
     else:
       moment = self.settingsFile+".tmp"
       try:
@@ -65,9 +67,9 @@ class SaveSys:
       except Exception as e:
         if os.path.isfile(moment):
           os.remove(moment)
-          log.critical("Failed to save "+self.settingsFile)
-          log.exception(e)
-          return
+        log.critical("Failed to save "+self.settingsFile)
+        log.exception(e)
+        return
       if os.path.isfile(self.settingsFile): os.remove(self.settingsFile)
       os.rename(moment, self.settingsFile)
     return
