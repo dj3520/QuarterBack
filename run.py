@@ -369,18 +369,21 @@ class discord_side(discord.Client):
     # Ignore DMs from non-owner
     if utils.is_pm(message.channel) and not owner: return
 
-    splitup = cleaned.lower().splitby("\n")
+    if owner:
+      cleaned = utils.remove_activation_text(message, sendback=True)
+      mentions = cleaned[1]
+      cleaned = cleaned[0]
+    elif requested:
+      cleaned = message.content.replace("qb ", "")
+
+    splitup = cleaned.lower().split("\n")
     for i in range(len(splitup)):
       checkme = splitup[i]
 
       check = ACIF2.command_matcher()
       if owner:
-        cleaned = utils.remove_activation_text(message, sendback=True)
-        mentions = cleaned[1]
-        cleaned = cleaned[0]
         check.add("sudo reboot", shutdown)
       elif requested:
-        cleaned = message.content.replace("qb ", "")
         check.add("ping", "Pong!")
         if message.author.guild_permissions.manage_roles:
           check.add("dump roles", dump_roles)
