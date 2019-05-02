@@ -2,9 +2,9 @@ import time
 starttime = time.time()
 
 import discord
-from discord import opus
+# from discord import opus
 
-import asyncio, sys, math, datetime
+import asyncio, sys, math, datetime, unidecode
 from libs import savesys, ACIF2, utils
 
 import auth
@@ -36,8 +36,6 @@ for l in ['discord.client', 'discord.gateway', 'discord.http', 'libs.ACIF2', 'we
   o = logging.getLogger(l)
   o.setLevel(logging.INFO)
   o.debug('Set '+l+' level to INFO')
-
-import unidecode
 
 custom_loop = asyncio.get_event_loop()
 
