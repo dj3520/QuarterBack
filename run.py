@@ -531,6 +531,7 @@ log.debug("All tasks canceled...")
 custom_loop.stop()
 log.debug("ASYNC loop halted. Killing log.")
 # custom_loop.close()
+handler.doRollover()
 logging.shutdown()
 
 print("~~EOF~~")
