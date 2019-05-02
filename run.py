@@ -32,7 +32,7 @@ log.info("Discord: "+discord.__version__)
 
 log.debug("Logging level = {}".format(log.getEffectiveLevel()))
 
-for l in ['discord.client', 'discord.gateway', 'discord.http', 'libs.ACIF2', 'websockets']: # , 'libs.twitch']: #, 'libs.savesys']:
+for l in ['discord.client', 'discord.gateway', 'discord.http', 'libs.ACIF2', 'websockets', 'libs.savesys']:
   o = logging.getLogger(l)
   o.setLevel(logging.INFO)
   o.debug('Set '+l+' level to INFO')
