@@ -16,7 +16,6 @@ format = logging.Formatter(fmt="%(asctime)s [%(levelname)s] [%(name)s.%(funcName
 import logging.handlers
 handler = logging.handlers.RotatingFileHandler("quarterback.log", backupCount=2, encoding="utf-8", mode="w")
 
-# handler = logging.FileHandler(filename="roboquarter.log", encoding="utf-8", mode="w")
 handler.setFormatter(format)
 log.addHandler(handler)
 
@@ -163,6 +162,7 @@ async def shutdown(dclient, message, match):
   await write_message(message.channel, "Goodbye.")
   await dclient.logout()
 
+'''
 async def lvl_football(dclient, message, match):
   cleaned = message.clean_content.lower()
   log.debug(cleaned)
@@ -181,6 +181,7 @@ async def lvl_football(dclient, message, match):
   football["football_kicks"] = lvl
   settings.setSavedVar("football", football)
   await write_message(message.channel, "Saved FootBall level is now {}".format(lvl))
+'''
 
 ### === ~~~ -- DISCORD CLASS -- ~~~ === ###
 
@@ -220,6 +221,7 @@ class discord_side(discord.Client):
 
   async def on_member_leave(self, member):
     users = settings.readSavedVar("users", default={})
+    '''
     if not str(member.id) in users.keys(): return
     if not users[str(member.id)] == False: return
 
@@ -235,6 +237,7 @@ class discord_side(discord.Client):
       rl.append(str(m.id))
 
     football['football_roles'] = rl
+    '''
 
     # Kick detection via audit log (find kicks for this user in the last 10 seconds)
 
@@ -251,6 +254,8 @@ class discord_side(discord.Client):
 
     log.info("Kick detection reads {}".format(kick))
 
+    '''
+
     # Increase counter on kick
     if kick:
       if "football_kicks" in football.keys():
@@ -258,6 +263,8 @@ class discord_side(discord.Client):
 
     # Save
     settings.setSavedVar("football", football)
+
+    '''
 
   async def on_member_join(self, member):
 
@@ -281,9 +288,11 @@ class discord_side(discord.Client):
     if "{} in {}".format(member.id, member.guild.id) in users.keys(): ret = users["{} in {}".format(member.id, member.guild.id)]
     if ret == None: return
     log.log(5, "Found an entry for this user: {}".format(ret))
+    '''
     if ret == False:
       await charlotte(member)
       return
+    '''
     await do_warn(member, ret)
 
   async def on_guild_join(self, guild):
@@ -391,7 +400,7 @@ class discord_side(discord.Client):
           check.add("add", add_warn)
           check.add("set", set_warn)
           check.add("scan", rescan)
-          check.add("lvl football", lvl_football)
+          # check.add("lvl football", lvl_football)
 
       check.add(["list commands", "help"], utils.better_str(check.get_list()))
 
@@ -501,7 +510,6 @@ async def dump_roles(dclient, message, match):
     await write_message(message.channel, "This is a private message. Do the command in a server.")
     return
   await write_message(message.channel, "```"+utils.better_str([str(r.id)+" - "+r.name for r in message.guild.role_hierarchy]).replace(", ", "\n")+"```")
-
 
 quarter = discord_side()
 keep_going = True
