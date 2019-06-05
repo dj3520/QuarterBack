@@ -538,6 +538,67 @@ async def dump_roles(dclient, message, match):
     return
   await write_message(message.channel, "```"+utils.better_str([str(r.id)+" - "+r.name for r in message.guild.role_hierarchy]).replace(", ", "\n")+"```")
 
+async def play(dclient, message, match):
+
+  channel = await vc_checks(message)
+  if channel == None: return
+
+  global players
+
+  cleaned = message.clean_content
+  cleaned = cleaned.replace("qb play ", "")
+
+  log.log(5, "{}".format(cleaned))
+
+  stations = {
+  "SIR" : {"name" : "Split Infinity Radio [128kbps]", "url" : "http://listen.siradio.fm:80/"},
+  "Touhou" : {"name" : "TouhouRadio.com [320kbps]", "url" : "http://touhouradio.com:8000/touhouradio.mp3"},
+  "MOE" : {"name" : "Listen.moe [128kbps]", "url" : "https://listen.moe/stream"},
+  "/a/" : {"name" : "R/a/dio [128kbps]", "url" : "http://stream.r-a-d.io/main.mp3"},
+  "JAPAN" : {"name" : "Japan-A-Radio [48kbps]", "url" : "http://audio.misproductions.com:9030/"},
+  "ARMI" : {"name" : "Armitage's Dimension [128kbps]", "url" : "http://mp3.fr.armitunes.com:8000/"}
+  }
+
+  check = ACIF2.command_matcher()
+  for k, v in stations.items():
+    check.add(k.lower(), v["url"])
+
+  match = check.match(cleaned.lower())
+
+  if match == None:
+    output = "```markdown\nAvailable stations:\n---"
+    for k, v in stations.items():
+      output+="\n* {} = {}".format(k, v["name"])
+    output+="```"
+    await write_message(message.channel, output)
+    return
+
+  if not message.guild.id in players.keys():
+    # Do connect
+    log.debug("Attempting connection to {} at {}kbps.".format(channel.name, channel.bitrate/1000))
+    try:
+      players[message.guild.id] = await channel.connect()
+    except Exception as e:
+      log.warning("Something went wrong!")
+      log.exception(e)
+      await write_message(message.channel, "Internal error attempting connection.")
+      del players[message.guild.id]
+      return
+    vol = 0.1
+  else:
+    # Reuse current volume
+    vol = players[message.guild.id].source.volume
+
+  # Connected
+  audio = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(match), volume=vol)
+
+  if not players[message.guild.id].is_playing():
+    players[message.guild.id].play(audio)
+  else:
+    players[message.guild.id].source = audio
+
+  await write_message(message.channel, ":arrow_forward: Playback started.")
+
 quarter = discord_side()
 keep_going = True
 try:
