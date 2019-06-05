@@ -599,6 +599,35 @@ async def play(dclient, message, match):
 
   await write_message(message.channel, ":arrow_forward: Playback started.")
 
+async def vol(dclient, message, match):
+
+  channel = await vc_checks(message)
+  if channel == None: return
+
+  global players
+
+  if not message.guild.id in players.keys():
+    await write_message(message.channel, "Nothing playing.")
+    return
+
+  cleaned = message.clean_content
+  cleaned = cleaned.replace("qb vol ", "")
+
+  try:
+    cleaned = int(cleaned.split(" ")[0])
+  except:
+    log.debug("Is {} even a number?".format(cleaned.split(" ")[0]))
+    await write_message(message.channel, ":anger: Failed. Make sure you're using numbers.")
+    return
+  if cleaned < 5:
+    cleaned = 5
+    await write_message(message.channel, ":bangbang: Readjusted to 5%.")
+  if cleaned > 100:
+    cleaned = 100
+    await write_message(message.channel, ":bangbang: Readjusted to 100%.")
+  players[message.guild.id].source.volume = cleaned / 100
+  await write_message(message.channel, ":loud_sound: Volume adjusted.")
+
 async def stop(dclient, message, match):
 
   channel = await vc_checks(message)
