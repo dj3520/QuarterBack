@@ -184,6 +184,22 @@ async def lvl_football(dclient, message, match):
   await write_message(message.channel, "Saved FootBall level is now {}".format(lvl))
 '''
 
+async def vc_checks(message):
+  if utils.is_pm(message.channel):
+    await write_message(message.channel, "This is a private message. Do the command in a server.")
+    return
+  if message.author.voice == None:
+    await write_message(message.channel, "You must be in a voice channel to use this command.")
+    return
+  if message.author.voice.channel == None:
+    await write_message(message.channel, "You must be in a voice channel to use this command.")
+    return
+  if message.guild.id in players.keys():
+    if not players[message.guild.id].channel == message.author.voice.channel:
+      await write_message(message.channel, "You must be in the same voice channel as the bot to use this command.")
+      return
+  return message.author.voice.channel
+
 ### === ~~~ -- DISCORD CLASS -- ~~~ === ###
 
 class discord_side(discord.Client):
