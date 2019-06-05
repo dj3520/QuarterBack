@@ -2,7 +2,7 @@ import time
 starttime = time.time()
 
 import discord
-# from discord import opus
+from discord import opus
 
 import asyncio, sys, math, datetime, unidecode
 from libs import savesys, ACIF2, utils
@@ -218,6 +218,8 @@ class discord_side(discord.Client):
     startedtime = math.trunc((ready_time - starttime) * 100) / 100
     logging.info("Started in "+str(startedtime)+" seconds.")
     logging.info(40*"=")
+
+    discord.opus.load_opus('libopus.so.0')
 
   async def on_member_leave(self, member):
     users = settings.readSavedVar("users", default={})
