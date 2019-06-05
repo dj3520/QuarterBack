@@ -599,6 +599,22 @@ async def play(dclient, message, match):
 
   await write_message(message.channel, ":arrow_forward: Playback started.")
 
+async def stop(dclient, message, match):
+
+  channel = await vc_checks(message)
+  if channel == None: return
+
+  global players
+
+  if not message.guild.id in players.keys():
+    await write_message(message.channel, "Nothing playing.")
+    return
+
+  players[message.guild.id].stop()
+  await players[message.guild.id].disconnect()
+  del players[message.guild.id]
+  await write_message(message.channel, ":stop_button: Playback stopped and channel left.")
+
 quarter = discord_side()
 keep_going = True
 try:
