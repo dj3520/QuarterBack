@@ -413,6 +413,14 @@ class discord_side(discord.Client):
       elif not do == None:
         await do(self, message, match)
 
+  async def on_voice_state_update(self, member, pervious, current):
+    if not member.guild.id in players.keys(): return
+    player = players[member.guild.id]
+    if len(player.channel.members) < 2 and player.is_playing():
+      player.stop()
+      await player.disconnect()
+      del players[member.guild.id]
+
 ## === ~~~ -- Commands -- ~~~ === ##
 
 async def charlotte(charl):
