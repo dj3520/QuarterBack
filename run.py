@@ -40,6 +40,7 @@ custom_loop = asyncio.get_event_loop()
 
 settings = savesys.SaveSys("qb-vars.json")
 startingUpDiscord = True
+players = {}
 
 ## === ~~~ -- Routines -- ~~~ === ##
 
@@ -531,6 +532,10 @@ if keep_going:
     log.warning("Websocket connection failed. Discord might be down!")
   finally:
     pass # custom_loop.run_until_complete(do_shutdown_prep())
+
+  for i in players:
+    players[i].stop()
+    custom_loop.run_until_complete(players[i].disconnect(force=True))
 
   if not quarter.is_closed():
     log.warning("Loop stopped but DISCORD still logged in.")
