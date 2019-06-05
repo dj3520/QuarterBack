@@ -407,14 +407,17 @@ class discord_side(discord.Client):
     splitup = cleaned.lower().split("\n")
     for i in range(len(splitup)):
       checkme = splitup[i]
-
       check = ACIF2.command_matcher()
+
       if owner:
         check.add("sudo reboot", shutdown)
       elif requested:
         check.add("ping", "Pong!")
         if message.author.guild_permissions.manage_roles:
           check.add("dump roles", dump_roles)
+          check.add("play", play)
+          check.add("vol", vol)
+          check.add("stop", stop)
         if message.author.guild_permissions.kick_members:
           check.add("add", add_warn)
           check.add("set", set_warn)
