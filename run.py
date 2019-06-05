@@ -415,13 +415,14 @@ class discord_side(discord.Client):
         check.add("ping", "Pong!")
         if message.author.guild_permissions.manage_roles:
           check.add("dump roles", dump_roles)
-          check.add("play", play)
-          check.add("vol", vol)
-          check.add("stop", stop)
         if message.author.guild_permissions.kick_members:
           check.add("add", add_warn)
           check.add("set", set_warn)
           check.add("scan", rescan)
+          # Radio controls
+          check.add("play", play)
+          check.add("vol", vol)
+          check.add("stop", stop)
           # check.add("lvl football", lvl_football)
 
       check.add(["list commands", "help"], utils.better_str(check.get_list()))
