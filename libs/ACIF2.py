@@ -11,7 +11,7 @@ class command_matcher:
     self.lookup = {}
 
   def add(self, match, to_return):
-    if isinstance(match, list):
+    if isinstance(match, list) or isinstance(match, set):
       for p in match:
         self.lookup[p] = to_return
         log.log(5, "Added "+str(p))
