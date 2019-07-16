@@ -6,6 +6,7 @@ from discord import opus
 
 import asyncio, sys, math, datetime, unidecode
 from libs import savesys, ACIF2, utils
+from SSLs import SA
 
 import auth
 
@@ -258,6 +259,7 @@ class discord_side(discord.Client):
     if "{} in {}".format(member.id, member.guild.id) in users.keys(): ret = users["{} in {}".format(member.id, member.guild.id)]
     if ret == None: return
     log.log(5, "Found an entry for this user: {}".format(ret))
+
     await do_warn(member, ret)
 
   async def on_guild_join(self, guild):
@@ -281,6 +283,9 @@ class discord_side(discord.Client):
     owner = message.author.id == appinf.owner.id and (self.user in message.mentions or utils.is_pm(message.channel))
     requested = message.content.startswith("qb ")
 
+    features = []
+    if not message.guild == None: features = await get_guild_setting(message.guild.id, "features", default=[])
+
     # Ignore own messages
     if message.author == self.user: return
 
@@ -289,14 +294,9 @@ class discord_side(discord.Client):
 
     if isinstance(message.content.lower(), str):
       check1 = ACIF2.command_matcher()
-      check1.add("sweetiestarr", "Unwritten rule was broken.")
-      #11. Absolutely no Uganda Knuckles talk.
-      check1.add(["ebola", "da wey", "uganda", "ugandan knuckles", "da wei", "de wei", "de way"], "Possible Rule 11.")
-      # 9. No talk of religion
-      # nothing yet
-      # 8. No talk of politics.
-      check1.add(["bipartisan", "caucus", "filibuster", "gerrymander", "politics", "republican", "democrat"], "Possible Rule 8.")
-
+      if "snow_angels" in features:
+        for k, v in SA.message_checks.items():
+          check1.add(k, v)
       do = check1.match(message.content.lower())
       if isinstance(do, str):
         message_link = "https://discordapp.com/channels/{}/{}/{}".format(message.guild.id, message.channel.id, message.id)
