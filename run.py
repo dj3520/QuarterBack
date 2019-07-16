@@ -645,8 +645,8 @@ if keep_going:
 
   try:
     custom_loop.run_until_complete(quarter.connect())
-  except KeyboardInterrupt:
-    log.warning("KeyboardInterrupt!")
+  except (KeyboardInterrupt, SystemExit):
+    log.warning("System exit request!")
   except discord.GatewayNotFound:
     log.warning("Websocket connection failed. Discord might be down!")
   finally:
