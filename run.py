@@ -163,27 +163,6 @@ async def shutdown(dclient, message, match):
   await write_message(message.channel, "Goodbye.")
   await dclient.logout()
 
-'''
-async def lvl_football(dclient, message, match):
-  cleaned = message.clean_content.lower()
-  log.debug(cleaned)
-  cleaned = cleaned.replace("@quarterback "+match+" ", "")
-  lvl = cleaned.split(" ")[0]
-  log.debug(lvl)
-  try: lvl = int(lvl)
-  except: lvl = None
-  football = settings.readSavedVar("football", default={})
-  saved = 0
-  if "football_kicks" in football.keys():
-    saved = football["football_kicks"]
-  if lvl == None:
-    await write_message(message.channel, "Saved FootBall level is {}".format(saved))
-    return
-  football["football_kicks"] = lvl
-  settings.setSavedVar("football", football)
-  await write_message(message.channel, "Saved FootBall level is now {}".format(lvl))
-'''
-
 async def vc_checks(message):
   if utils.is_pm(message.channel):
     await write_message(message.channel, "This is a private message. Do the command in a server.")
@@ -240,23 +219,7 @@ class discord_side(discord.Client):
 
   async def on_member_leave(self, member):
     users = settings.readSavedVar("users", default={})
-    '''
-    if not str(member.id) in users.keys(): return
-    if not users[str(member.id)] == False: return
 
-    log.info("Football left stadium.")
-
-    football = settings.readSavedVar("football", default={})
-
-    # Save roles
-    rl = []
-
-    for m in member.roles:
-      if m.is_default(): continue
-      rl.append(str(m.id))
-
-    football['football_roles'] = rl
-    '''
 
     # Kick detection via audit log (find kicks for this user in the last 10 seconds)
 
@@ -272,18 +235,6 @@ class discord_side(discord.Client):
           break
 
     log.info("Kick detection reads {}".format(kick))
-
-    '''
-
-    # Increase counter on kick
-    if kick:
-      if "football_kicks" in football.keys():
-        football["football_kicks"] += 1
-
-    # Save
-    settings.setSavedVar("football", football)
-
-    '''
 
   async def on_member_join(self, member):
 
@@ -307,11 +258,6 @@ class discord_side(discord.Client):
     if "{} in {}".format(member.id, member.guild.id) in users.keys(): ret = users["{} in {}".format(member.id, member.guild.id)]
     if ret == None: return
     log.log(5, "Found an entry for this user: {}".format(ret))
-    '''
-    if ret == False:
-      await charlotte(member)
-      return
-    '''
     await do_warn(member, ret)
 
   async def on_guild_join(self, guild):
