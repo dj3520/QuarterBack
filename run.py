@@ -360,6 +360,8 @@ class discord_side(discord.Client):
       elif requested:
         check.add("ping", "Pong!")
         if message.author.guild_permissions.manage_roles:
+          check.add("enable", enable)
+          check.add("disable", disable)
           check.add("dump roles", dump_roles)
         if message.author.guild_permissions.kick_members:
           check.add("add", add_warn)
@@ -481,6 +483,43 @@ async def set_warn(dclient, message, match):
 
   await set_guild_setting(guild.id, "warn-channel", int(channel.id))
   await write_message(channel, ":thumbsup:")
+
+async def enable(dclient, message, match):
+  guild = message.guild
+  features = await get_guild_setting(guild.id, "features", default=[])
+
+  cleaned = message.clean_content.replace("qb enable ", "")
+  addthese = cleaned.split(" ")
+
+  for i in addthese:
+    if not i in features:
+      features.append(i)
+
+  await set_guild_setting(guild.id, "features", features)
+  await write_message(message.channel, ":thumbsup: {}".format(features))
+
+async def disable(dclient, message, match):
+  guild = message.guild
+  features = await get_guild_setting(guild.id, "features", default=[])
+
+  cleaned = message.clean_content
+  cleaned = cleaned.replace("qb disable ", "")
+  addthese = cleaned.split(" ")
+
+  failed = ""
+
+  for i in addthese:
+    if i in features:
+      features.remove(i)
+    else:
+      failed += i + ", "
+
+  await set_guild_setting(guild.id, "features", features)
+
+  if failed == "":
+    await write_message(message.channel, ":thumbsup: All good.")
+  else:
+    await write_message(message.channel, "These failed: {}".format(failed))
 
 async def dump_roles(dclient, message, match):
   if utils.is_pm(message.channel):
