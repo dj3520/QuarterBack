@@ -13,3 +13,4 @@ libs/phue.py
 *.bak
 *.1
 *.2
+*.txt
