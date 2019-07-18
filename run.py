@@ -525,7 +525,7 @@ async def dump_roles(dclient, message, match):
   if utils.is_pm(message.channel):
     await write_message(message.channel, "This is a private message. Do the command in a server.")
     return
-  await write_message(message.channel, "```"+utils.better_str([str(r.id)+" - "+r.name for r in message.guild.role_hierarchy]).replace(", ", "\n")+"```")
+  await write_message(message.channel, "```"+utils.better_str([str(r.id)+" - "+r.name for r in message.guild.roles]).replace(", ", "\n")+"```")
 
 async def play(dclient, message, match):
 
