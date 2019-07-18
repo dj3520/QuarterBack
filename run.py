@@ -7,6 +7,7 @@ from discord import opus
 import asyncio, sys, math, datetime, unidecode
 from libs import savesys, ACIF2, utils
 from SSLs import SA
+from SSLs import OaU
 
 import auth
 
@@ -380,6 +381,16 @@ class discord_side(discord.Client):
         await write_message(message.channel, do)
       elif not do == None:
         await do(self, message, match)
+
+      if "OaU" in features:
+        onandup = await get_guild_setting(message.guild.id, "OaU", default={})
+        prep = OaU.role_giver(onandup, ACIF2)
+        ret = await prep.on_message(message, message.author.id == appinf.owner.id, checkme.lower())
+        if isinstance(ret, str):
+          await write_message(message.channel, ret)
+        elif not ret == None:
+          await set_guild_setting(message.guild.id, "OaU", ret)
+          await write_message(message.channel, ":thumbsup:")
 
   async def on_voice_state_update(self, member, pervious, current):
     if not member.guild.id in players.keys(): return
