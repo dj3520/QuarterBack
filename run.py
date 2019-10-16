@@ -122,7 +122,7 @@ async def failed_message(where, want_perm):
     return
   await send2owner("I do not have `"+want_perm+"` permission in `"+where.guild.name+"/"+where.name+"`")
 
-async def write_message(where, content, tts=False):
+async def write_message(where, content, tts=False, delete_after=False):
   isEmbed = isinstance(content, discord.embeds.Embed)
 
   if isinstance(where, list):
@@ -143,7 +143,10 @@ async def write_message(where, content, tts=False):
       await write_message(where, "My reply was too long. (More than 2000 characters)")
 
     try:
-      sent = await where.send(content, tts=tts)
+      if delete_after == False:
+        sent = await where.send(content, tts=tts)
+      else:
+        sent = await where.send(content, tts=tts, delete_after=delete_after)
       return sent
     except discord.errors.Forbidden:
       want_perm = "Send Message"
@@ -154,7 +157,10 @@ async def write_message(where, content, tts=False):
       return None
 
   try:
-    sent = await where.send(None, embed=content)
+    if delete_after == False:
+      sent = await where.send(None, embed=content)
+    else:
+      sent = await where.send(None, embed=content, delete_after=delete_after)
     return sent
   except discord.Forbidden:
     want_perm = "Embed Links"
@@ -390,7 +396,7 @@ class discord_side(discord.Client):
           await write_message(message.channel, ret)
         elif not ret == None:
           await set_guild_setting(message.guild.id, "OaU", ret)
-          await write_message(message.channel, ":thumbsup:")
+          await write_message(message.channel, ":thumbsup:", delete_after=60)
 
   async def on_voice_state_update(self, member, pervious, current):
     if not member.guild.id in players.keys(): return
