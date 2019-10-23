@@ -3,13 +3,15 @@ import logging, json, os, copy
 log = logging.getLogger(__name__)
 
 class SaveSys:
-  def __init__(self, file, ds = False):
-    self.settingsFile = file
+  def __init__(self, ifile, ds = True):
+    self.settingsFile = ifile
     self.settingsDic = {}
     self.disksaver = ds
     if os.path.isfile(self.settingsFile):
       with open(self.settingsFile, encoding="utf8") as f:
-        self.settingsDic = json.load(f)
+        self.istr = f.read()
+
+      self.settingsDic = json.loads(self.istr)
 
   # These allow using this lib in WITH statements
   def __enter__(self):
@@ -26,29 +28,14 @@ class SaveSys:
     return default
 
   def setSavedVar(self, var, val):
-
-    if self.disksaver:
-      if var in self.settingsDic.keys():
-        if self.settingsDic[var] == val:
-          log.log(4, "[{}] Not updating '{}' because it's the same as before.".format(self.settingsFile, var))
-          return
-
-    # Change in memory, then dump memory
-    log.log(5, "[{}] Saving value to vars: {} = {}".format(self.settingsFile, var, val))
-    if isinstance(val, dict): self.settingsDic[var] = copy.deepcopy(val)
-    elif isinstance(val, list): self.settingsDic[var] = val.copy()
-    else: self.settingsDic[var] = val
-
+    self.settingsDic[var] = val
     self.saveToDisk()
 
   def delSavedVar(self, var):
     if not var in self.settingsDic.keys(): return False
 
-    # Change in memory, then dump memory
-    log.log(5, "["+self.settingsFile+"] Deleting value: "+var)
-    del self.settingsDic[var]
-
     self.saveToDisk()
+    return True
 
   def saveToDisk(self):
     log.log(4, "["+self.settingsFile+"] Saving this amount of vars to disk: "+str(len(self.settingsDic)))
@@ -60,16 +47,22 @@ class SaveSys:
           log.critical("Failed to delete "+self.settingsFile)
           log.exception(e)
     else:
-      moment = self.settingsFile+".tmp"
+      ostr = json.dumps(self.settingsDic, sort_keys=True, indent=2)
+      if ostr == self.istr: return
+
+      moment = self.settingsFile
+      if not self.disksaver:
+        moment = moment+".tmp"
       try:
         with open(moment, "w", encoding="utf8") as f:
-          json.dump(self.settingsDic, f, sort_keys=True, indent=2)
+          f.write(ostr)
       except Exception as e:
-        if os.path.isfile(moment):
+        if not disksaver and os.path.isfile(moment):
           os.remove(moment)
         log.critical("Failed to save "+self.settingsFile)
         log.exception(e)
         return
-      if os.path.isfile(self.settingsFile): os.remove(self.settingsFile)
-      os.rename(moment, self.settingsFile)
-    return
+      if not self.disksaver:
+        if os.path.isfile(self.settingsFile): os.remove(self.settingsFile)
+        os.rename(moment, self.settingsFile)
+
