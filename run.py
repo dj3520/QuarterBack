@@ -595,6 +595,8 @@ async def play(dclient, message, match):
     # Reuse current volume
     vol = players[message.guild.id].source.volume
 
+  log.debug("Connection established. Creating player...")
+
   # Connected
   audio = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(match), volume=vol)
 
