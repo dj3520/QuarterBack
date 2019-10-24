@@ -44,6 +44,8 @@ settings = savesys.SaveSys("qb-vars.json")
 startingUpDiscord = True
 players = {}
 
+cell_phone = time.time()
+
 ## === ~~~ -- Routines -- ~~~ === ##
 
 async def get_guild_setting(ugid, key, default=None):
@@ -228,7 +230,6 @@ class discord_side(discord.Client):
   async def on_member_leave(self, member):
     users = settings.readSavedVar("users", default={})
 
-
     # Kick detection via audit log (find kicks for this user in the last 10 seconds)
 
     kick = False
@@ -286,6 +287,7 @@ class discord_side(discord.Client):
           except: pass
 
   async def on_message(self, message):
+    global cell_phone
     appinf = await quarter.application_info()
     owner = message.author.id == appinf.owner.id and (self.user in message.mentions or utils.is_pm(message.channel))
     requested = message.content.startswith("qb ")
@@ -343,6 +345,11 @@ class discord_side(discord.Client):
             await message.add_reaction(chr(127472))
           except:
             pass
+
+    if time.time() > cell_phone:
+      if "baka baka baka" in message.content.lower():
+        cell_phone = time.time() + 600
+        await write_message(message.channel, "_Cell phone noises._")
 
     # Ignore normal messages
     if not owner and not requested: return
