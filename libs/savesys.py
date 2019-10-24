@@ -10,8 +10,9 @@ class SaveSys:
     if os.path.isfile(self.settingsFile):
       with open(self.settingsFile, encoding="utf8") as f:
         self.istr = f.read()
-
       self.settingsDic = json.loads(self.istr)
+    else:
+      self.istr = ""
 
   # These allow using this lib in WITH statements
   def __enter__(self):
