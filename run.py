@@ -4,7 +4,7 @@ starttime = time.time()
 import discord
 from discord import opus
 
-import asyncio, sys, math, datetime, unidecode
+import asyncio, sys, math, datetime, unidecode, re
 from libs import savesys, ACIF2, utils
 from SSLs import SA
 from SSLs import OaU
@@ -314,37 +314,36 @@ class discord_side(discord.Client):
         await do(self, message, match)
 
     users = settings.readSavedVar("users", default={})
-    if str(message.author.id) in users.keys():
-      if users[str(message.author.id)] == "HECK":
+    # if str(message.author.id) in users.keys():
+      # if users[str(message.author.id)] == "HECK":
 
-        # _should_ convert most accent marks
-        conv = message.content.lower()
-        conv = conv.replace(":regional_indicator_", "")
-        # Need to take off the other colon too
-        conv = conv.replace(":", "")
+    # _should_ convert most accent marks
+    conv = message.content.lower()
+    conv = conv.replace(":regional_indicator_", "")
+    # Need to take off the other colon too
+    conv = conv.replace(":", "")
 
-        for i in range(0, 3):
-          conv = conv.replace("heck"[i]*2, "heck"[i])
+    for i in range(0, 3):
+      conv = conv.replace("heck"[i]*2, "heck"[i])
 
-        conv2 = unidecode.unidecode(conv)
+    conv2 = unidecode.unidecode(conv)
 
-        # Feel free to append
-        heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "h3ck", "həck"]
+    # Feel free to append
+    heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "h3ck", "həck"]
 
-        has_heck = False
-        for i in heck_check:
-          if i.lower() in conv or i.lower() in conv2:
-            has_heck = True
-            break
+    orig = i.lower()
+    rep = i.lower()
+    for i in heck_check:
+      rep = re.sub("\\bheck\\b", "", rep, flags=re.IGNORECASE)
 
-        if has_heck:
-          try:
-            await message.add_reaction(chr(127469))
-            await message.add_reaction(chr(127466))
-            await message.add_reaction(chr(127464))
-            await message.add_reaction(chr(127472))
-          except:
-            pass
+    if not orig == rep:
+      try:
+        await message.add_reaction(chr(127469))
+        await message.add_reaction(chr(127466))
+        await message.add_reaction(chr(127464))
+        await message.add_reaction(chr(127472))
+      except:
+        pass
 
     if time.time() > cell_phone:
       if "baka baka baka" in message.content.lower():
