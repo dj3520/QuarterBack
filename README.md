@@ -1,2 +1,2 @@
 # QuarterBack
-A discord.py bot. Made to help a memer and track a football. Currently a work in progress.
+A discord.py bot. Originally made to help a memer and track a football. Mostly just for custom utility work now.
