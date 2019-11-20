@@ -331,8 +331,8 @@ class discord_side(discord.Client):
     # Feel free to append
     heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "h3ck", "həck"]
 
-    orig = i.lower()
-    rep = i.lower()
+    orig = conv.lower()
+    rep = conv.lower()
     for i in heck_check:
       rep = re.sub("\\bheck\\b", "", rep, flags=re.IGNORECASE)
 
