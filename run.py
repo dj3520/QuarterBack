@@ -227,7 +227,7 @@ class discord_side(discord.Client):
 
     discord.opus.load_opus('libopus.so.0')
 
-  async def on_member_leave(self, member):
+  async def on_member_remove(self, member):
     users = settings.readSavedVar("users", default={})
 
     # Kick detection via audit log (find kicks for this user in the last 10 seconds)
