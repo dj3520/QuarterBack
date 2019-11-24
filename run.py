@@ -227,6 +227,7 @@ class discord_side(discord.Client):
 
     discord.opus.load_opus('libopus.so.0')
 
+
   async def on_member_remove(self, member):
     users = settings.readSavedVar("users", default={})
 
@@ -442,8 +443,9 @@ class discord_side(discord.Client):
 
 async def lvl_football(dclient, message, match):
   cleaned = message.clean_content.lower()
-  log.debug(cleaned)
+  log.debug("{} - {}".format(cleaned, match))
   cleaned = cleaned.replace("@quarterback "+match+" ", "")
+  cleaned = cleaned.replace("qb "+match+" ", "")
   lvl = cleaned.split(" ")[0]
   log.debug(lvl)
   try: lvl = int(lvl)
