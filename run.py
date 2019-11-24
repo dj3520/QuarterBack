@@ -230,6 +230,23 @@ class discord_side(discord.Client):
   async def on_member_remove(self, member):
     users = settings.readSavedVar("users", default={})
 
+    if not users[str(member.id)] == False: return
+
+    log.info("Football left stadium.")
+
+    football = settings.readSavedVar("football", default={})
+
+    # Save roles
+    rl = []
+
+    for m in member.roles:
+      if m.is_default(): continue
+      rl.append(str(m.id))
+
+    football['football_roles'] = rl
+
+    '''
+
     # Kick detection via audit log (find kicks for this user in the last 10 seconds)
 
     kick = False
@@ -244,6 +261,15 @@ class discord_side(discord.Client):
           break
 
     log.info("Kick detection reads {}".format(kick))
+    '''
+
+    # Increase counter on kick
+    # if kick:
+    if "football_kicks" in football.keys():
+      football["football_kicks"] += 1
+
+    # Save
+    settings.setSavedVar("football", football)
 
   async def on_member_join(self, member):
 
