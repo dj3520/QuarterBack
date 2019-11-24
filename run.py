@@ -384,7 +384,7 @@ class discord_side(discord.Client):
           check.add("play", play)
           check.add("vol", vol)
           check.add("stop", stop)
-          # check.add("lvl football", lvl_football)
+          check.add("lvl football", lvl_football)
 
       check.add(["list commands", "help"], utils.better_str(check.get_list()))
 
@@ -413,6 +413,25 @@ class discord_side(discord.Client):
       del players[member.guild.id]
 
 ## === ~~~ -- Commands -- ~~~ === ##
+
+async def lvl_football(dclient, message, match):
+  cleaned = message.clean_content.lower()
+  log.debug(cleaned)
+  cleaned = cleaned.replace("@quarterback "+match+" ", "")
+  lvl = cleaned.split(" ")[0]
+  log.debug(lvl)
+  try: lvl = int(lvl)
+  except: lvl = None
+  football = settings.readSavedVar("football", default={})
+  saved = 0
+  if "football_kicks" in football.keys():
+    saved = football["football_kicks"]
+  if lvl == None:
+    await write_message(message.channel, "Saved FootBall level is {}".format(saved))
+    return
+  football["football_kicks"] = lvl
+  settings.setSavedVar("football", football)
+  await write_message(message.channel, "Saved FootBall level is now {}".format(lvl))
 
 async def charlotte(charl):
   football = settings.readSavedVar("football", default={})
