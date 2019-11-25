@@ -306,12 +306,13 @@ class discord_side(discord.Client):
 
     users = settings.readSavedVar("users", default={})
     if str(new.id) in users.keys():
-      if users[str(new.id)].startswith("NAME_LOCK"):
-        nick = users[str(new.id)].replace("NAME_LOCK ", "")
-        if new.nick == old.nick: return
-        if not new.nick == nick:
-          try: await new.edit(nick=nick, reason="Name lock enabled for this user.")
-          except: pass
+      if type(users[str(new.id)]) == str:
+        if users[str(new.id)].startswith("NAME_LOCK"):
+          nick = users[str(new.id)].replace("NAME_LOCK ", "")
+          if new.nick == old.nick: return
+          if not new.nick == nick:
+            try: await new.edit(nick=nick, reason="Name lock enabled for this user.")
+            except: pass
 
   async def on_message(self, message):
     global cell_phone
