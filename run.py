@@ -318,7 +318,8 @@ class discord_side(discord.Client):
   async def on_message(self, message):
     global cell_phone
     appinf = await quarter.application_info()
-    owner = message.author.id == appinf.owner.id and (self.user in message.mentions or utils.is_pm(message.channel))
+    isDM = utils.is_pm(message.channel)
+    owner = message.author.id == appinf.owner.id and (self.user in message.mentions or isDM)
     requested = message.content.startswith("qb ")
 
     features = []
@@ -343,8 +344,10 @@ class discord_side(discord.Client):
         await do(self, message, match)
 
     users = settings.readSavedVar("users", default={})
-    # if str(message.author.id) in users.keys():
-      # if users[str(message.author.id)] == "HECK":
+    ret = None
+    if str(message.author.id) in users.keys(): ret = users[str(message.author.id)]
+    if not isDM:
+      if "{} in {}".format(message.author.id, message.guild.id) in users.keys(): ret = users["{} in {}".format(message.author.id, message.guild.id)]
 
     # _should_ convert most accent marks
     conv = message.content.lower()
