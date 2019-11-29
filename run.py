@@ -231,6 +231,7 @@ class discord_side(discord.Client):
   async def on_member_remove(self, member):
     users = settings.readSavedVar("users", default={})
 
+    if not str(member.id) in users.keys(): return
     if not users[str(member.id)] == False: return
 
     log.info("Football left stadium.")
