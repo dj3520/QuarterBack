@@ -45,6 +45,7 @@ startingUpDiscord = True
 players = {}
 
 cell_phone = time.time()
+cake_nom = time.time()
 
 ## === ~~~ -- Routines -- ~~~ === ##
 
@@ -317,6 +318,7 @@ class discord_side(discord.Client):
 
   async def on_message(self, message):
     global cell_phone
+    global cake_nom
     appinf = await quarter.application_info()
     isDM = utils.is_pm(message.channel)
     owner = message.author.id == appinf.owner.id and (self.user in message.mentions or isDM)
@@ -348,6 +350,10 @@ class discord_side(discord.Client):
     if str(message.author.id) in users.keys(): ret = users[str(message.author.id)]
     if not isDM:
       if "{} in {}".format(message.author.id, message.guild.id) in users.keys(): ret = users["{} in {}".format(message.author.id, message.guild.id)]
+    if ret == "CAKE_NOM":
+      if cake_nom < time.time():
+        cake_nom = time.time() + 3600
+        await message.add_reaction("<:Nom2:643122897996742667>")
 
     # _should_ convert most accent marks
     conv = message.content.lower()
