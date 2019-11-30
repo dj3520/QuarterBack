@@ -352,7 +352,7 @@ class discord_side(discord.Client):
       if "{} in {}".format(message.author.id, message.guild.id) in users.keys(): ret = users["{} in {}".format(message.author.id, message.guild.id)]
     if ret == "CAKE_NOM":
       if cake_nom < time.time():
-        cake_nom = time.time() + 3600
+        cake_nom = time.time() + 1800
         await message.add_reaction("<:Nom2:643122897996742667>")
 
     # _should_ convert most accent marks
