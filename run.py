@@ -372,7 +372,7 @@ class discord_side(discord.Client):
     orig = conv.lower()
     rep = conv.lower()
     for i in heck_check:
-      rep = re.sub("\\bheck\\b", "", rep, flags=re.IGNORECASE)
+      rep = re.sub("\\b{}\\b".format(i), "", rep, flags=re.IGNORECASE)
 
     if not orig == rep:
       try:
