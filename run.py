@@ -1,10 +1,11 @@
 import time
 starttime = time.time()
 
+import traceback
 import discord
 from discord import opus
 
-import asyncio, sys, math, datetime, unidecode
+import asyncio, sys, math, datetime, unidecode, re
 from libs import savesys, ACIF2, utils
 from SSLs import SA
 from SSLs import OaU
@@ -45,6 +46,7 @@ startingUpDiscord = True
 players = {}
 
 cell_phone = time.time()
+cake_nom = time.time()
 
 ## === ~~~ -- Routines -- ~~~ === ##
 
@@ -202,12 +204,16 @@ class discord_side(discord.Client):
     e = sys.exc_info()[0]
     log.exception(e)
 
-    if hasattr(e, 'message'): e = e.message
-    await send2owner("Errors occured in "+str(event)+"()\n"+str(args)+"\n"+str(kwargs)+"\n"+str(e))
+    em = "Errors occured in {}()\n{}\n{}\n{}".format(event, args, kwargs, e)
+    if hasattr(e, 'message'): em += "\n{}".format(e.message)
 
     if not len(args) == 0:
       if type(args[0]) == discord.Message:
-        await send2owner("["+args[0].author.name+"]: "+args[0].content)
+        em += "\nMessage from [{}]: {}".format(args[0].author.name, args[0].content)
+
+    em += "\n```" + traceback.format_exc() + "```"
+
+    await send2owner(em)
 
   async def on_ready(self):
     # Avoid running again after a re-connect
@@ -227,8 +233,26 @@ class discord_side(discord.Client):
 
     discord.opus.load_opus('libopus.so.0')
 
-  async def on_member_leave(self, member):
+  async def on_member_remove(self, member):
     users = settings.readSavedVar("users", default={})
+
+    if not str(member.id) in users.keys(): return
+    if not users[str(member.id)] == False: return
+
+    log.info("Football left stadium.")
+
+    football = settings.readSavedVar("football", default={})
+
+    # Save roles
+    rl = []
+
+    for m in member.roles:
+      if m.is_default(): continue
+      rl.append(str(m.id))
+
+    football['football_roles'] = rl
+
+    '''
 
     # Kick detection via audit log (find kicks for this user in the last 10 seconds)
 
@@ -244,6 +268,32 @@ class discord_side(discord.Client):
           break
 
     log.info("Kick detection reads {}".format(kick))
+    '''
+
+    # Increase counter on kick
+    # if kick:
+    if "football_kicks" in football.keys():
+      football["football_kicks"] += 1
+
+    # Save
+    settings.setSavedVar("football", football)
+
+  async def on_typing(self, channel, member, when):
+    # avoid DMs where we can't change nicknames, and there are none to begin with!
+    if not hasattr(member, "guild"):
+      return
+
+    users = settings.readSavedVar("users", default={})
+    if not str(member.id) in users.keys(): return
+    if not type(users[str(member.id)]) == str: return
+    if not users[str(member.id)].startswith("NAME_TYPING"): return
+    nick = users[str(member.id)].replace("NAME_TYPING ", "")
+    if not member.nick == nick:
+      try:
+        await member.edit(nick=nick, reason="Typing name lock enabled for this user.")
+        logging.info('Typing namelock: {}'.format(nick))
+      except Exception as e:
+        log.exception(e)
 
   async def on_member_join(self, member):
 
@@ -279,17 +329,23 @@ class discord_side(discord.Client):
 
     users = settings.readSavedVar("users", default={})
     if str(new.id) in users.keys():
-      if users[str(new.id)].startswith("NAME_LOCK"):
-        nick = users[str(new.id)].replace("NAME_LOCK ", "")
-        if new.nick == old.nick: return
-        if not new.nick == nick:
-          try: await new.edit(nick=nick, reason="Name lock enabled for this user.")
-          except: pass
+      if type(users[str(new.id)]) == str:
+        if users[str(new.id)].startswith("NAME_LOCK"):
+          nick = users[str(new.id)].replace("NAME_LOCK ", "")
+          if new.nick == old.nick: return
+          if not new.nick == nick:
+            try:
+              await new.edit(nick=nick, reason="Immediate name lock enabled for this user.")
+              logging.info('Immediate namelock: {}'.format(nick))
+            except Exception as e:
+              log.exception(e)
 
   async def on_message(self, message):
     global cell_phone
+    global cake_nom
     appinf = await quarter.application_info()
-    owner = message.author.id == appinf.owner.id and (self.user in message.mentions or utils.is_pm(message.channel))
+    isDM = utils.is_pm(message.channel)
+    owner = message.author.id == appinf.owner.id and (self.user in message.mentions or isDM)
     requested = message.content.startswith("qb ")
 
     features = []
@@ -314,42 +370,57 @@ class discord_side(discord.Client):
         await do(self, message, match)
 
     users = settings.readSavedVar("users", default={})
-    if str(message.author.id) in users.keys():
-      if users[str(message.author.id)] == "HECK":
+    ret = None
+    if str(message.author.id) in users.keys(): ret = users[str(message.author.id)]
+    if not isDM:
+      if "{} in {}".format(message.author.id, message.guild.id) in users.keys(): ret = users["{} in {}".format(message.author.id, message.guild.id)]
+    if ret == "CAKE_NOM":
+      if cake_nom < time.time():
+        cake_nom = time.time() + 1800
+        await message.add_reaction("<:Nom2:643122897996742667>")
 
-        # _should_ convert most accent marks
-        conv = message.content.lower()
-        conv = conv.replace(":regional_indicator_", "")
-        # Need to take off the other colon too
-        conv = conv.replace(":", "")
+    # _should_ convert most accent marks
+    conv = message.content.lower()
+    conv = conv.replace(":regional_indicator_", "")
+    # Need to take off the other colon too
+    conv = conv.replace(":", "")
 
-        for i in range(0, 3):
-          conv = conv.replace("heck"[i]*2, "heck"[i])
+    for i in range(0, 3):
+      conv = conv.replace("heck"[i]*2, "heck"[i])
 
-        conv2 = unidecode.unidecode(conv)
+    conv2 = unidecode.unidecode(conv)
 
-        # Feel free to append
-        heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "h3ck", "həck"]
+    # Feel free to append
+    heck_check = ["heck", "ʞɔǝɥ", "ʰᵉᶜᵏ", "h3ck", "həck"]
 
-        has_heck = False
-        for i in heck_check:
-          if i.lower() in conv or i.lower() in conv2:
-            has_heck = True
-            break
+    orig = conv.lower()
+    rep = conv.lower()
+    for i in heck_check:
+      rep = re.sub("\\b{}\\b".format(i), "", rep, flags=re.IGNORECASE)
 
-        if has_heck:
-          try:
-            await message.add_reaction(chr(127469))
-            await message.add_reaction(chr(127466))
-            await message.add_reaction(chr(127464))
-            await message.add_reaction(chr(127472))
-          except:
-            pass
+    if not orig == rep:
+      try:
+        await message.add_reaction(chr(127469))
+        await message.add_reaction(chr(127466))
+        await message.add_reaction(chr(127464))
+        await message.add_reaction(chr(127472))
+      except:
+        pass
 
     if time.time() > cell_phone:
       if "baka baka baka" in message.content.lower():
-        cell_phone = time.time() + 600
+        cell_phone = time.time() + 1800
         await write_message(message.channel, "_Cell phone noises._")
+
+    if isinstance(ret, str):
+      if ret.startswith("NAME_MESSAGE"):
+        nick = ret.replace("NAME_MESSAGE ", "")
+        if not message.author.nick == nick:
+          try:
+            await message.author.edit(nick=nick, reason="Message name lock enabled for this user.")
+            logging.info('Message namelock: {}'.format(nick))
+          except Exception as e:
+            log.exception(e)
 
     # Ignore normal messages
     if not owner and not requested: return
@@ -385,7 +456,7 @@ class discord_side(discord.Client):
           check.add("play", play)
           check.add("vol", vol)
           check.add("stop", stop)
-          # check.add("lvl football", lvl_football)
+          check.add("lvl football", lvl_football)
 
       check.add(["list commands", "help"], utils.better_str(check.get_list()))
 
@@ -414,6 +485,26 @@ class discord_side(discord.Client):
       del players[member.guild.id]
 
 ## === ~~~ -- Commands -- ~~~ === ##
+
+async def lvl_football(dclient, message, match):
+  cleaned = message.clean_content.lower()
+  log.debug("{} - {}".format(cleaned, match))
+  cleaned = cleaned.replace("@quarterback "+match+" ", "")
+  cleaned = cleaned.replace("qb "+match+" ", "")
+  lvl = cleaned.split(" ")[0]
+  log.debug(lvl)
+  try: lvl = int(lvl)
+  except: lvl = None
+  football = settings.readSavedVar("football", default={})
+  saved = 0
+  if "football_kicks" in football.keys():
+    saved = football["football_kicks"]
+  if lvl == None:
+    await write_message(message.channel, "Saved FootBall level is {}".format(saved))
+    return
+  football["football_kicks"] = lvl
+  settings.setSavedVar("football", football)
+  await write_message(message.channel, "Saved FootBall level is now {}".format(lvl))
 
 async def charlotte(charl):
   football = settings.readSavedVar("football", default={})
@@ -470,6 +561,7 @@ async def add_warn(dclient, message, match):
   else:
     channel = guild.get_channel(channel)
     if channel == None:
+      msg = member.mention+" - "+reason
       await write_message(message.channel, "Warning channel wasn't found.\n"+msg)
 
   cleaned = message.clean_content
@@ -483,6 +575,16 @@ async def add_warn(dclient, message, match):
 
   if cleaned.startswith("NAME_LOCK"):
     if len(cleaned.replace("NAME_LOCK ", "")) > 33:
+      await write_message(message.channel, ":x: Locked name is above 32 characters.")
+      return
+
+  if cleaned.startswith("NAME_TYPING"):
+    if len(cleaned.replace("NAME_TYPING ", "")) > 33:
+      await write_message(message.channel, ":x: Locked name is above 32 characters.")
+      return
+
+  if cleaned.startswith("NAME_MESSAGE"):
+    if len(cleaned.replace("NAME_MESSAGE ", "")) > 33:
       await write_message(message.channel, ":x: Locked name is above 32 characters.")
       return
 
