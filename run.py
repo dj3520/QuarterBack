@@ -412,10 +412,10 @@ class discord_side(discord.Client):
       except:
         pass
 
-    if time.time() > cell_phone:
-      if "baka baka baka" in message.content.lower():
-        cell_phone = time.time() + 3600
+    if "baka baka baka" in message.content.lower():
+      if time.time() > cell_phone:
         await write_message(message.channel, "_Cell phone noises._")
+      cell_phone = time.time() + 3600
 
     if isinstance(ret, str):
       if ret.startswith("NAME_MESSAGE"):
