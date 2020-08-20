@@ -318,6 +318,9 @@ class discord_side(discord.Client):
     if ret == None: return
     log.log(5, "Found an entry for this user: {}".format(ret))
 
+    for i in ("NAME_LOCK", "NAME_MESSAGE", "NAME_TYPING", "CAKE_NOM"):
+      if ret.startswith(i): return
+
     await do_warn(member, ret)
 
   async def on_guild_join(self, guild):
