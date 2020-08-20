@@ -377,10 +377,12 @@ class discord_side(discord.Client):
     if str(message.author.id) in users.keys(): ret = users[str(message.author.id)]
     if not isDM:
       if "{} in {}".format(message.author.id, message.guild.id) in users.keys(): ret = users["{} in {}".format(message.author.id, message.guild.id)]
+    ''' Need new emoji
     if ret == "CAKE_NOM":
       if cake_nom < time.time():
         cake_nom = time.time() + 1800
         await message.add_reaction("<:Nom2:643122897996742667>")
+    '''
 
     # _should_ convert most accent marks
     conv = message.content.lower()
