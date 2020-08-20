@@ -414,7 +414,7 @@ class discord_side(discord.Client):
 
     if time.time() > cell_phone:
       if "baka baka baka" in message.content.lower():
-        cell_phone = time.time() + 1800
+        cell_phone = time.time() + 3600
         await write_message(message.channel, "_Cell phone noises._")
 
     if isinstance(ret, str):
