@@ -37,7 +37,8 @@ def remove_activation_text(message, sendback=False, convert=True):
   # Convert mentions to names
   for m in message.mentions:
     if m == my_member and first_mention_of_me:
-      out = out.replace(m.mention, '', 1)
+      # m.mention text is not correct, no !
+      out = out.replace("<@!" + str(m.id) + ">", '', 1)
       first_mention_of_me = False
     if thisIsADM:
       if convert: out = out.replace(m.mention, m.name)
